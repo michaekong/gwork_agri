@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GWork - Révolutionnons l'Agriculture au Cameroun</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(46, 125, 50, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav.scrolled {
+            background: rgba(46, 125, 50, 1);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.2);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 50%, #81C784 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><path d="M0,300 Q250,200 500,300 T1000,300 L1000,1000 L0,1000 Z" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: cover;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #FFF9C4;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 5rem 0;
+            position: relative;
+        }
+
+        .section:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #2E7D32;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #4CAF50, #81C784);
+            border-radius: 2px;
+        }
+
+        /* Problem Solution Cards */
+        .problem-solution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .card h3 {
+            color: #2E7D32;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .card li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        /* User Interface Simulation */
+        .user-interface {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 3rem 0;
+        }
+
+        .ui-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .ui-tab {
+            padding: 1rem 2rem;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ui-tab:hover {
+            background: #2E7D32;
+        }
+
+        .ui-tab.active {
+            background: #2E7D32;
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+        }
+
+        .ui-content {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 10px;
+            min-height: 400px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2E7D32;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2E7D32;
+        }
+
+        #map {
+            height: 400px;
+            border-radius: 10px;
+            margin-top: 1rem;
+        }
+
+        .job-list, .product-list, .training-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .job, .product, .training {
+            background: #e8f5e9;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Business Model */
+        .revenue-streams {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .revenue-card {
+            background: linear-gradient(135deg, #4CAF50, #81C784);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .revenue-card:hover {
+            transform: scale(1.05);
+        }
+
+        .revenue-amount {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 3rem auto;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: #4CAF50;
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+            width: 50%;
+        }
+
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            padding-right: 2rem;
+        }
+
+        .timeline-item:nth-child(even) {
+            left: 50%;
+            padding-left: 2rem;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content::before {
+            right: -30px;
+            border-left-color: white;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content::before {
+            left: -30px;
+            border-right-color: white;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: #4CAF50;
+            border-radius: 50%;
+            border: 4px solid white;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+
+        /* CTA Section */
+        .cta {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            text-align: center;
+            padding: 5rem 0;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: white;
+            color: #2E7D32;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .ui-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .ui-tab {
+                width: 100%;
+                text-align: center;
+            }
+
+            .stats, .problem-solution, .revenue-streams {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline::before {
+                left: 20px;
+            }
+
+            .timeline-item {
+                width: 100%;
+                left: 0 !important;
+                padding-left: 3rem !important;
+                padding-right: 0 !important;
+            }
+
+            .timeline-content::before {
+                left: -30px !important;
+                border-right-color: white !important;
+                border-left-color: transparent !important;
+            }
+
+            .timeline-dot {
+                left: 20px !important;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">🌱 GWork</div>
+                <ul class="nav-links">
+                    <li><a href="#hero">Accueil</a></li>
+                    <li><a href="#problem">Problème</a></li>
+                    <li><a href="#solution">Solution</a></li>
+                    <li><a href="#geospatial">Cartes</a></li>
+                    <li><a href="#interface">Interface</a></li>
+                    <li><a href="#business">Modèle</a></li>
+                    <li><a href="#roadmap">Roadmap</a></li>
+                    <li><a href="#cta">Contact</a></li>
+                     <li><a href="interface.html">interface user</a></li>
+                   
+                   
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>GWork</h1>
+                <p class="subtitle">Révolutionnons l'Agriculture Camerounaise</p>
+                <p>Connectez les jeunes à des opportunités d’emploi et de commerce agricole, de la semence à la vente, grâce à des cartes géospatiales.</p>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-number">5,000</div>
+                        <div class="stat-label">Jeunes connectés d'ici 2027</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">10,000</div>
+                        <div class="stat-label">Transactions facilitées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">20%</div>
+                        <div class="stat-label">Contribution agriculture au PIB</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">60%</div>
+                        <div class="stat-label">Jeunes sous-employés</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="section" id="problem">
+        <div class="container">
+            <h2>Le Défi à Relever</h2>
+            <div class="problem-solution">
+                <div class="card">
+                    <h3>🚨 Chômage des Jeunes</h3>
+                    <ul>
+                        <li>60% des jeunes sous-employés</li>
+                        <li>Agriculture peu attractive malgré 20% du PIB</li>
+                        <li>Revenus faibles, conditions difficiles</li>
+                        <li>Manque de perspectives</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🔒 Barrières Structurelles</h3>
+                    <ul>
+                        <li>Accès limité aux terres</li>
+                        <li>Manque de formation technique</li>
+                        <li>Logistique complexe pour la vente</li>
+                        <li>Dépendance aux intermédiaires</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📍 Manque de Géolocalisation</h3>
+                    <ul>
+                        <li>Difficulté à localiser jobs/vendeurs</li>
+                        <li>Coûts de déplacement élevés</li>
+                        <li>Plateformes existantes sans cartes</li>
+                        <li>Opportunités mal exploitées</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="section" id="solution">
+        <div class="container">
+            <h2>Notre Solution Innovante</h2>
+            <div class="problem-solution">
+                <div class="card">
+                    <h3>🌾 Emploi & Micro-tâches</h3>
+                    <ul>
+                        <li>Jobs dans toute la chaîne agricole</li>
+                        <li>Semence, culture, récolte, transformation</li>
+                        <li>Opportunités pour tous niveaux</li>
+                        <li>Notifications SMS/WhatsApp</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📚 Formation Intégrée</h3>
+                    <ul>
+                        <li>Modules courts et pratiques</li>
+                        <li>Techniques de transformation</li>
+                        <li>Partenariats avec PEA-Jeunes, IRAD</li>
+                        <li>Gamification (badges)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🛒 Marché Intégré</h3>
+                    <ul>
+                        <li>Vente directe sans intermédiaires</li>
+                        <li>Produits bruts et transformés</li>
+                        <li>Système de notation</li>
+                        <li>Partenariats logistiques</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Geospatial Section -->
+    <section class="section" id="geospatial">
+        <div class="container">
+            <h2>Cartes Géospatiales : Le Cœur de GWork</h2>
+            <p>Les données géospatiales révolutionnent l’accès aux opportunités agricoles en permettant aux utilisateurs de visualiser et localiser les zones d’emploi et de vente sur des cartes interactives. Grâce aux coordonnées GPS, GWork optimise les déplacements, réduit les coûts, et connecte les jeunes aux opportunités près de chez eux.</p>
+            <div class="problem-solution">
+                <div class="card">
+                    <h3>🗺️ Visualisation Intuitive</h3>
+                    <ul>
+                        <li>Cartes montrant jobs (ex. : fermes à Douala) et vendeurs (ex. : manioc à Yaoundé)</li>
+                        <li>Filtres par type, distance, disponibilité</li>
+                        <li>Interface Leaflet.js légère et rapide</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>📍 Données GPS Précises</h3>
+                    <ul>
+                        <li>Coordonnées collectées via profils utilisateurs</li>
+                        <li>Estimation manuelle pour zones rurales</li>
+                        <li>Requêtes géospatiales (ex. : jobs dans un rayon de 10 km)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🌐 Accessibilité Hors Ligne</h3>
+                    <ul>
+                        <li>Liste textuelle via SMS/USSD</li>
+                        <li>Cache hors ligne pour zones à faible connexion</li>
+                        <li>Tutoriels pour utilisateurs non technophiles</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- User Interface Simulation -->
+    <section class="section" id="interface">
+        <div class="container">
+            <h2>Expérience Utilisateur</h2>
+            <div class="user-interface">
+                <div class="ui-tabs">
+                    <button class="ui-tab active" onclick="showTab('profile')">Profil</button>
+                    <button class="ui-tab" onclick="showTab('jobs')">Emplois</button>
+                    <button class="ui-tab" onclick="showTab('map')">Carte</button>
+                    <button class="ui-tab" onclick="showTab('training')">Formation</button>
+                    <button class="ui-tab" onclick="showTab('market')">Marché</button>
+                    <button class="ui-tab" onclick="showTab('payment')">Paiement</button>
+                    <button class="ui-tab" onclick="showTab('community')">Communauté</button>
+                    
+                </div>
+                <div class="ui-content">
+                    <div id="ui-profile">
+                        <h3>Créer un Profil</h3>
+                        <div class="form-group">
+                            <label for="name">Nom</label>
+                            <input type="text" id="name" placeholder="Entrez votre nom">
+                        </div>
+                        <div class="form-group">
+                            <label for="role">Rôle</label>
+                            <select id="role">
+                                <option value="worker">Jeune (Chercheur de jobs)</option>
+                                <option value="employer">Employeur (Ferme, Coopérative)</option>
+                                <option value="buyer">Acheteur (Restaurant, Particulier)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="location">Localisation (Ville/Village)</label>
+                            <input type="text" id="location" placeholder="Ex. : Douala">
+                        </div>
+                        <div class="form-group">
+                            <label for="gps">Coordonnées GPS (optionnel)</label>
+                            <input type="text" id="gps" placeholder="Ex. : 4.05, 9.71">
+                        </div>
+                        <button class="btn" onclick="simulateSignup()">S’inscrire</button>
+                    </div>
+                    <div id="ui-jobs" class="hidden">
+                        <h3>Rechercher des Jobs</h3>
+                        <div class="form-group">
+                            <label for="job-type">Type de job</label>
+                            <select id="job-type">
+                                <option value="semence">Semence</option>
+                                <option value="culture">Culture</option>
+                                <option value="recolte">Récolte</option>
+                                <option value="transformation">Transformation</option>
+                                <option value="distribution">Distribution</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="job-location">Localisation</label>
+                            <input type="text" id="job-location" placeholder="Ex. : Yaoundé">
+                        </div>
+                        <div class="form-group">
+                            <label for="job-radius">Rayon (km)</label>
+                            <input type="number" id="job-radius" placeholder="Ex. : 10" value="10">
+                        </div>
+                        <button class="btn" onclick="searchJobs()">Rechercher</button>
+                        <div class="job-list" id="job-list"></div>
+                    </div>
+                    <div id="ui-map" class="hidden">
+                        <h3>Carte des Opportunités</h3>
+                        <p>Visualisez les zones d’emploi et de vente avec des coordonnées GPS.</p>
+                        <div class="form-group">
+                            <label for="map-filter">Filtrer par</label>
+                            <select id="map-filter">
+                                <option value="jobs">Jobs</option>
+                                <option value="products">Produits</option>
+                                <option value="all">Tous</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="map-location">Centrer sur</label>
+                            <input type="text" id="map-location" placeholder="Ex. : Douala">
+                        </div>
+                        <div class="form-group">
+                            <label for="map-radius">Rayon (km)</label>
+                            <input type="number" id="map-radius" placeholder="Ex. : 50" value="50">
+                        </div>
+                        <button class="btn" onclick="updateMap()">Actualiser la carte</button>
+                        <div id="map"></div>
+                    </div>
+                    <div id="ui-training" class="hidden">
+                        <h3>Formations</h3>
+                        <p>Apprenez des techniques agricoles modernes.</p>
+                        <div class="training-list" id="training-list"></div>
+                    </div>
+                    <div id="ui-market" class="hidden">
+                        <h3>Marché</h3>
+                        <div class="form-group">
+                            <label for="product-type">Type de produit</label>
+                            <select id="product-type">
+                                <option value="brut">Brut (ex. : Manioc)</option>
+                                <option value="transforme">Transformé (ex. : Jus)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="product-location">Localisation</label>
+                            <input type="text" id="product-location" placeholder="Ex. : Buea">
+                        </div>
+                        <div class="form-group">
+                            <label for="product-radius">Rayon (km)</label>
+                            <input type="number" id="product-radius" placeholder="Ex. : 10" value="10">
+                        </div>
+                        <button class="btn" onclick="searchProducts()">Rechercher</button>
+                        <div class="product-list" id="product-list"></div>
+                    </div>
+                    <div id="ui-payment" class="hidden">
+                        <h3>Paiement Sécurisé</h3>
+                        <p>Payez ou recevez via Mobile Money.</p>
+                        <div class="form-group">
+                            <label for="payment-amount">Montant (FCFA)</label>
+                            <input type="number" id="payment-amount" placeholder="Ex. : 5000">
+                        </div>
+                        <button class="btn" onclick="simulatePayment()">Simuler un paiement</button>
+                    </div>
+                    <div id="ui-community" class="hidden">
+                        <h3>Communauté</h3>
+                        <p>Rejoignez des groupes pour partager des astuces.</p>
+                        <div class="form-group">
+                            <label for="community-message">Message à partager</label>
+                            <input type="text" id="community-message" placeholder="Ex. : Astuce pour le compost">
+                        </div>
+                        <button class="btn" onclick="joinCommunity()">Rejoindre WhatsApp</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Model -->
+    <section class="section" id="business">
+        <div class="container">
+            <h2>Modèle Économique Viable</h2>
+            <div class="revenue-streams">
+                <div class="revenue-card">
+                    <div class="revenue-amount">3-5%</div>
+                    <div>Commission sur transactions</div>
+                    <small>Jobs et ventes</small>
+                </div>
+                <div class="revenue-card">
+                    <div class="revenue-amount">5,000 FCFA</div>
+                    <div>Abonnement Premium</div>
+                    <small>Accès privilégié</small>
+                </div>
+                <div class="revenue-card">
+                    <div class="revenue-amount">Publicité</div>
+                    <div>Intrants agricoles</div>
+                    <small>Semences, engrais, outils</small>
+                </div>
+                <div class="revenue-card">
+                    <div class="revenue-amount">Partenariats</div>
+                    <div>Centres de formation</div>
+                    <small>ONG, institutions</small>
+                </div>
+            </div>
+            <div class="card" style="margin-top: 3rem; text-align: center;">
+                <h3>💰 Projection Financière</h3>
+                <p><strong>1,500 transactions/mois</strong> d'ici 18 mois</p>
+                <p>50% emplois + 50% ventes = <strong>750,000 FCFA/mois</strong></p>
+                <p>Croissance prévue : <strong>300% sur 24 mois</strong></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section class="section" id="roadmap">
+        <div class="container">
+            <h2>Feuille de Route</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Phase 1 - Étude de Marché</h3>
+                        <p><strong>1 mois</strong></p>
+                        <p>50 interviews jeunes, 20 employeurs, 10 acheteurs. Analyse concurrentielle.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Phase 2 - MVP</h3>
+                        <p><strong>3 mois</strong></p>
+                        <p>Prototype : inscription, jobs, marché, cartes géospatiales. Stack Django + Leaflet.js.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Phase 3 - Test Pilote</h3>
+                        <p><strong>3 mois</strong></p>
+                        <p>Lancement région Littoral. Objectif : 100 jeunes, 20 employeurs, 10 acheteurs.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Phase 4 - Expansion</h3>
+                        <p><strong>12 mois</strong></p>
+                        <p>Régions Centre et Ouest. Cartes enrichies, logistique optimisée.</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="cta">
+        <div class="container">
+            <h2>Rejoignez la Révolution Agricole</h2>
+            <p>Transformons l’agriculture camerounaise avec des cartes géospatiales pour un avenir prospère.</p>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">6M FCFA</div>
+                    <div class="stat-label">Financement Phase 1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3M FCFA</div>
+                    <div class="stat-label">Financement Phase 2</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">FNE, PNUD</div>
+                    <div class="stat-label">Sources de financement</div>
+                </div>
+            </div>
+            <a href="mailto:contact@gwork.cm" class="cta-button">Nous Contacter</a>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Navigation Scroll Effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Tab Switching
+        function showTab(tabId) {
+            document.querySelectorAll('.ui-content > div').forEach(div => {
+                div.classList.add('hidden');
+            });
+            document.getElementById(`ui-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('.ui-tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            if (tabId === 'map') {
+                map.invalidateSize(); // Refresh map size
+            }
+        }
+
+        // Simulate Signup
+        function simulateSignup() {
+            const name = document.getElementById('name').value;
+            const role = document.getElementById('role').value;
+            const location = document.getElementById('location').value;
+            const gps = document.getElementById('gps').value;
+            if (name && location) {
+                alert(`Inscription réussie ! Bienvenue, ${name} (${role}) à ${location}${gps ? ' (GPS: ' + gps + ')' : ''}.`);
+            } else {
+                alert('Veuillez remplir les champs obligatoires (nom, localisation).');
+            }
+        }
+
+        // Simulate Job Search
+        function searchJobs() {
+            const jobType = document.getElementById('job-type').value;
+            const jobLocation = document.getElementById('job-location').value;
+            const jobRadius = document.getElementById('job-radius').value;
+            const jobList = document.getElementById('job-list');
+            jobList.innerHTML = '';
+            const jobs = [
+                { title: `Job ${jobType}`, desc: `Tâche à ${jobLocation || 'Douala'}, 5 000 FCFA/jour, dans ${jobRadius || 10} km`, lat: 4.05, lon: 9.71 },
+                { title: `Job ${jobType}`, desc: `Tâche à ${jobLocation || 'Yaoundé'}, 6 000 FCFA/jour, dans ${jobRadius || 10} km`, lat: 3.85, lon: 11.51 }
+            ];
+            jobs.forEach(job => {
+                const jobDiv = document.createElement('div');
+                jobDiv.className = 'job';
+                jobDiv.innerHTML = `<h3>${job.title}</h3><p>${job.desc}</p>`;
+                jobList.appendChild(jobDiv);
+                L.marker([job.lat, job.lon]).addTo(map).bindPopup(job.desc);
+            });
+        }
+
+        // Simulate Product Search
+        function searchProducts() {
+            const productType = document.getElementById('product-type').value;
+            const productLocation = document.getElementById('product-location').value;
+            const productRadius = document.getElementById('product-radius').value;
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            const products = [
+                { title: `${productType} - Manioc`, desc: `Manioc frais, 1 000 FCFA/kg, ${productLocation || 'Douala'}, dans ${productRadius || 10} km`, lat: 4.06, lon: 9.72 },
+                { title: `${productType} - Jus`, desc: `Jus de mangue, 2 000 FCFA/litre, ${productLocation || 'Yaoundé'}, dans ${productRadius || 10} km`, lat: 3.86, lon: 11.51 }
+            ];
+            products.forEach(product => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product';
+                productDiv.innerHTML = `<h3>${product.title}</h3><p>${product.desc}</p>`;
+                productList.appendChild(productDiv);
+                L.marker([product.lat, product.lon]).addTo(map).bindPopup(product.desc);
+            });
+        }
+
+        // Update Map
+        function updateMap() {
+            const filter = document.getElementById('map-filter').value;
+            const location = document.getElementById('map-location').value;
+            const radius = document.getElementById('map-radius').value;
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker || layer instanceof L.Circle) {
+                    map.removeLayer(layer);
+                }
+            });
+            const center = location.toLowerCase().includes('douala') ? [4.05, 9.71] : location.toLowerCase().includes('yaoundé') ? [3.85, 11.51] : [5.5, 12.0];
+            map.setView(center, location ? 10 : 6);
+            if (radius) {
+                L.circle(center, { radius: radius * 1000, color: '#4CAF50', fillOpacity: 0.1 }).addTo(map);
+            }
+            const jobs = [
+                { desc: 'Ferme à Douala : Récolte de manioc', lat: 4.05, lon: 9.71 },
+                { desc: 'Coopérative à Yaoundé : Transformation', lat: 3.85, lon: 11.51 },
+                { desc: 'Ferme à Buea : Semence', lat: 4.15, lon: 9.24 }
+            ];
+            const products = [
+                { desc: 'Vendeur à Douala : Manioc frais', lat: 4.06, lon: 9.72 },
+                { desc: 'Vendeur à Yaoundé : Jus de mangue', lat: 3.86, lon: 11.51 },
+                { desc: 'Vendeur à Bamenda : Farine de maïs', lat: 5.96, lon: 10.15 }
+            ];
+            if (filter === 'jobs' || filter === 'all') {
+                jobs.forEach(job => {
+                    L.marker([job.lat, job.lon]).addTo(map).bindPopup(job.desc);
+                });
+            }
+            if (filter === 'products' || filter === 'all') {
+                products.forEach(product => {
+                    L.marker([product.lat, product.lon]).addTo(map).bindPopup(product.desc);
+                });
+            }
+        }
+
+        // Simulate Payment
+        function simulatePayment() {
+            const amount = document.getElementById('payment-amount').value;
+            if (amount) {
+                alert(`Paiement simulé de ${amount} FCFA via Mobile Money ! Transaction sécurisée.`);
+            } else {
+                alert('Veuillez entrer un montant.');
+            }
+        }
+
+        // Simulate Community
+        function joinCommunity() {
+            const message = document.getElementById('community-message').value;
+            if (message) {
+                alert(`Vous avez rejoint le groupe WhatsApp GWork et partagé : "${message}" !`);
+            } else {
+                alert('Vous avez rejoint le groupe WhatsApp GWork !');
+            }
+        }
+
+        // Initialize Map
+        var map = L.map('map').setView([5.5, 12.0], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Default Markers
+        L.marker([4.05, 9.71]).addTo(map).bindPopup('Ferme à Douala : Récolte de manioc');
+        L.marker([3.85, 11.51]).addTo(map).bindPopup('Vendeur à Yaoundé : Jus de mangue');
+
+        // Load Trainings
+        const trainingList = document.getElementById('training-list');
+        const trainings = [
+            { title: 'Semis', desc: 'Préparer le sol efficacement' },
+            { title: 'Transformation', desc: 'Fabriquer du garri' },
+            { title: 'Irrigation', desc: 'Techniques modernes' },
+            { title: 'Vente', desc: 'Stratégies de commercialisation' }
+        ];
+        trainings.forEach(training => {
+            const trainingDiv = document.createElement('div');
+            trainingDiv.className = 'training';
+            trainingDiv.innerHTML = `<h3>${training.title}</h3><p>${training.desc}</p>`;
+            trainingList.appendChild(trainingDiv);
+        });
+    </script>
+</body>
+</html>

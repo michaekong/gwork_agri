@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GWork - Interface Utilisateur Mobile</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* User Interface Section */
+        .user-interface {
+            padding: 3rem 0;
+            background: white;
+            border-radius: 15px;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .phone-mockup {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .phone-mockup h3 {
+            color: #2E7D32;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .phone-mockup p {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .phone-screen {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #fff;
+            border: 10px solid #333;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .app-header {
+            background: #4CAF50;
+            padding: 1rem;
+            color: white;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background: #81C784;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .user-info h3 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .user-info p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        .app-tabs {
+            display: flex;
+            justify-content: space-around;
+            background: #f8f9fa;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 0.8rem;
+            font-size: 0.9rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #2E7D32;
+            font-weight: bold;
+            border-bottom: 2px solid #4CAF50;
+        }
+
+        .tab-panel {
+            padding: 1rem;
+            animation: slideIn 0.5s ease;
+        }
+
+        .tab-panel.hidden {
+            display: none;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        h4 {
+            color: #2E7D32;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .job-card, .product-card, .module-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .job-card:hover, .product-card:hover, .module-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .job-title, .product-price, h5 {
+            color: #2E7D32;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .job-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .job-salary {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .btn-apply, .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+
+        .btn-apply:hover, .btn:hover {
+            background: #2E7D32;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+
+        .progress-fill {
+            background: #4CAF50;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .product-grid, .training-modules {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .product-image, .module-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: #2E7D32;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        #map {
+            height: 300px;
+            border-radius: 10px;
+            margin-top: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .results-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .result-item {
+            background: #e8f5e9;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .community-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+
+        .community-post {
+            background: #e8f5e9;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .phone-screen {
+                max-width: 100%;
+                border-width: 5px;
+                border-radius: 20px;
+            }
+
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .app-tabs {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .tab-btn {
+                flex: 1 0 25%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .user-interface {
+                margin: 1rem 0;
+                padding: 1.5rem 0;
+            }
+
+            .phone-mockup h3 {
+                font-size: 1.5rem;
+            }
+
+            .tab-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <h1>GWork - Interface Utilisateur Mobile</h1>
+            <p>Connectez les jeunes aux opportunités agricoles avec des cartes géospatiales</p>
+        </div>
+    </header>
+
+    <!-- User Interface Section -->
+    <section class="user-interface">
+        <div class="container">
+            <div class="phone-mockup">
+                <h3>Interface Mobile GWork</h3>
+                <p>Exemple : Utilisateur "Amadou Diallo" - Agriculteur à Douala</p>
+            </div>
+            <div class="phone-screen">
+                <div class="app-header">
+                    <div class="user-profile">
+                        <div class="avatar">👨</div>
+                        <div class="user-info">
+                            <h3>Amadou Diallo</h3>
+                            <p>Agriculteur • Douala, Littoral</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-tabs">
+                    <button class="tab-btn active" data-tab="jobs">Emplois</button>
+                    <button class="tab-btn" data-tab="map">Carte</button>
+                    <button class="tab-btn" data-tab="profile">Profil</button>
+                    <button class="tab-btn" data-tab="training">Formation</button>
+                    <button class="tab-btn" data-tab="marketplace">Marché</button>
+                    <button class="tab-btn" data-tab="payment">Paiement</button>
+                    <button class="tab-btn" data-tab="community">Communauté</button>
+                </div>
+                <div class="tab-content">
+                    <!-- Jobs Tab -->
+                    <div id="jobs-tab" class="tab-panel">
+                        <h4>Emplois Disponibles (10)</h4>
+                        <div class="form-group">
+                            <label for="job-search">Rechercher un job</label>
+                            <input type="text" id="job-search" placeholder="Ex. : Récolte, Douala">
+                        </div>
+                        <button class="btn" onclick="searchJobs()">Rechercher</button>
+                        <div class="results-list" id="job-results"></div>
+                    </div>
+                    <!-- Map Tab -->
+                    <div id="map-tab" class="tab-panel hidden">
+                        <h4>Carte des Opportunités</h4>
+                        <div class="form-group">
+                            <label for="map-filter">Filtrer par</label>
+                            <select id="map-filter">
+                                <option value="jobs">Jobs</option>
+                                <option value="products">Produits</option>
+                                <option value="all">Tous</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="map-location">Localisation</label>
+                            <input type="text" id="map-location" placeholder="Ex. : Douala" value="Douala">
+                        </div>
+                        <div class="form-group">
+                            <label for="map-radius">Rayon (km)</label>
+                            <input type="number" id="map-radius" value="10" placeholder="Ex. : 10">
+                        </div>
+                        <button class="btn" onclick="updateMap()">Actualiser</button>
+                        <div id="map"></div>
+                        <div class="results-list" id="map-results"></div>
+                    </div>
+                    <!-- Profile Tab -->
+                    <div id="profile-tab" class="tab-panel hidden">
+                        <h4>Mon Profil</h4>
+                        <div style="text-align: center; margin: 1rem 0;">
+                            <div class="avatar" style="width: 80px; height: 80px; font-size: 2rem; margin: 0 auto;">👨</div>
+                            <h3 style="margin: 0.5rem 0;">Amadou Diallo</h3>
+                            <p style="color: #666;">Membre depuis 3 mois</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-name">Nom</label>
+                            <input type="text" id="profile-name" value="Amadou Diallo">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-location">Localisation</label>
+                            <input type="text" id="profile-location" value="Douala, Littoral">
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-gps">Coordonnées GPS</label>
+                            <input type="text" id="profile-gps" value="4.05, 9.71">
+                        </div>
+                        <button class="btn" onclick="updateProfile()">Mettre à jour</button>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <strong>Compétences :</strong>
+                            <div style="margin-top: 0.5rem;">
+                                <span style="background: #4CAF50; color: white; padding: 0.2rem 0.5rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem;">Plantation</span>
+                                <span style="background: #4CAF50; color: white; padding: 0.2rem 0.5rem; border-radius: 15px; font-size: 0.8rem; margin-right: 0.5rem;">Récolte</span>
+                                <span style="background: #81C784; color: white; padding: 0.2rem 0.5rem; border-radius: 15px; font-size: 0.8rem;">Transformation</span>
+                            </div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+                            <strong>Statistiques :</strong>
+                            <div style="margin-top: 0.5rem;">
+                                <p>✅ 12 emplois complétés</p>
+                                <p>⭐ Note : 4.8/5 (23 avis)</p>
+                                <p>💰 Revenus : 180,000 FCFA ce mois</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Training Tab -->
+                    <div id="training-tab" class="tab-panel hidden">
+                        <h4>Mes Formations</h4>
+                        <div class="form-group">
+                            <label for="training-search">Rechercher une formation</label>
+                            <input type="text" id="training-search" placeholder="Ex. : Semis">
+                        </div>
+                        <button class="btn" onclick="searchTrainings()">Rechercher</button>
+                        <div class="training-modules" id="training-modules"></div>
+                    </div>
+                    <!-- Marketplace Tab -->
+                    <div id="marketplace-tab" class="tab-panel hidden">
+                        <h4>Mes Produits en Vente</h4>
+                        <div class="form-group">
+                            <label for="product-search">Rechercher un produit</label>
+                            <input type="text" id="product-search" placeholder="Ex. : Manioc, Yaoundé">
+                        </div>
+                        <button class="btn" onclick="searchProducts()">Rechercher</button>
+                        <div class="results-list" id="product-results"></div>
+                        <div class="form-group">
+                            <label for="product-name">Ajouter un produit</label>
+                            <input type="text" id="product-name" placeholder="Ex. : Manioc frais">
+                        </div>
+                        <div class="form-group">
+                            <label for="product-price">Prix (FCFA)</label>
+                            <input type="number" id="product-price" placeholder="Ex. : 500">
+                        </div>
+                        <button class="btn" onclick="addProduct()">Ajouter</button>
+                    </div>
+                    <!-- Payment Tab -->
+                    <div id="payment-tab" class="tab-panel hidden">
+                        <h4>Paiement Sécurisé</h4>
+                        <div class="form-group">
+                            <label for="payment-amount">Montant (FCFA)</label>
+                            <input type="number" id="payment-amount" placeholder="Ex. : 5000">
+                        </div>
+                        <div class="form-group">
+                            <label for="payment-type">Type</label>
+                            <select id="payment-type">
+                                <option value="send">Envoyer</option>
+                                <option value="receive">Recevoir</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment-phone">Numéro Mobile Money</label>
+                            <input type="text" id="payment-phone" placeholder="Ex. : +237 690 123 456">
+                        </div>
+                        <button class="btn" onclick="simulatePayment()">Effectuer</button>
+                    </div>
+                    <!-- Community Tab -->
+                    <div id="community-tab" class="tab-panel hidden">
+                        <h4>Communauté</h4>
+                        <div class="form-group">
+                            <label for="community-message">Votre message</label>
+                            <textarea id="community-message" placeholder="Ex. : Astuce pour le compost" rows="3"></textarea>
+                        </div>
+                        <button class="btn" onclick="postCommunityMessage()">Publier</button>
+                        <div class="community-list" id="community-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // User Position
+        const user = {
+            name: "Amadou Diallo",
+            lat: 4.05,
+            lon: 9.71,
+            location: "Douala"
+        };
+
+        // Data for Jobs and Products
+        const jobs = [
+            { title: "Plantation de Maïs", desc: "Ferme Koupa - 3 jours", location: "Douala", lat: 4.06, lon: 9.72, salary: "15,000 FCFA/jour", distance: "5 km" },
+            { title: "Récolte de Manioc", desc: "Coopérative Mboa - Urgent", location: "Bonanjo", lat: 4.04, lon: 9.70, salary: "12,000 FCFA/jour", distance: "8 km" },
+            { title: "Transformation Fruits", desc: "AgroTech - Formation incluse", location: "Bonabéri", lat: 4.07, lon: 9.73, salary: "20,000 FCFA/jour", distance: "3 km" },
+            { title: "Semis de Cacao", desc: "Ferme Ndongo - 5 jours", location: "Yaoundé", lat: 3.86, lon: 11.52, salary: "14,000 FCFA/jour", distance: "250 km" },
+            { title: "Irrigation Riz", desc: "Coopérative Nord - 7 jours", location: "Garoua", lat: 9.30, lon: 13.39, salary: "18,000 FCFA/jour", distance: "800 km" },
+            { title: "Récolte Bananes", desc: "Plantation Mvog - 4 jours", location: "Buea", lat: 4.15, lon: 9.24, salary: "13,000 FCFA/jour", distance: "60 km" },
+            { title: "Transformation Arachide", desc: "Usine Bafoussam - 10 jours", location: "Bafoussam", lat: 5.47, lon: 10.42, salary: "22,000 FCFA/jour", distance: "300 km" },
+            { title: "Plantation Tomates", desc: "Ferme Kribi - 6 jours", location: "Kribi", lat: 2.94, lon: 9.91, salary: "16,000 FCFA/jour", distance: "150 km" },
+            { title: "Récolte Mil", desc: "Coopérative Maroua - Urgent", location: "Maroua", lat: 10.59, lon: 14.32, salary: "17,000 FCFA/jour", distance: "900 km" },
+            { title: "Semis Poivrons", desc: "Ferme Limbe - 5 jours", location: "Limbe", lat: 4.02, lon: 9.21, salary: "15,500 FCFA/jour", distance: "50 km" }
+        ];
+
+        const products = [
+            { title: "Manioc Frais", desc: "50 kg disponibles", location: "Douala", lat: 4.05, lon: 9.72, price: "500 FCFA/kg", distance: "5 km" },
+            { title: "Jus de Mangue", desc: "20 L en stock", location: "Yaoundé", lat: 3.85, lon: 11.51, price: "800 FCFA/L", distance: "250 km" },
+            { title: "Farine de Maïs", desc: "100 kg disponibles", location: "Bamenda", lat: 5.96, lon: 10.15, price: "600 FCFA/kg", distance: "350 km" },
+            { title: "Bananes Plantains", desc: "200 kg en stock", location: "Buea", lat: 4.16, lon: 9.25, price: "300 FCFA/kg", distance: "60 km" },
+            { title: "Huile de Palme", desc: "50 L disponibles", location: "Kribi", lat: 2.95, lon: 9.90, price: "1,200 FCFA/L", distance: "150 km" },
+            { title: "Arachides Grillées", desc: "30 kg en stock", location: "Garoua", lat: 9.31, lon: 13.40, price: "1,000 FCFA/kg", distance: "800 km" },
+            { title: "Poissons Fumés", desc: "10 kg disponibles", location: "Limbe", lat: 4.03, lon: 9.20, price: "2,500 FCFA/kg", distance: "50 km" },
+            { title: "Piment Séché", desc: "5 kg en stock", location: "Maroua", lat: 10.60, lon: 14.33, price: "3,000 FCFA/kg", distance: "900 km" },
+            { title: "Riz Local", desc: "100 kg disponibles", location: "Bafoussam", lat: 5.48, lon: 10.43, price: "700 FCFA/kg", distance: "300 km" },
+            { title: "Patates Douces", desc: "80 kg en stock", location: "Bonanjo", lat: 4.03, lon: 9.69, price: "400 FCFA/kg", distance: "8 km" }
+        ];
+
+        // Tab Switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+                document.getElementById(`${btn.dataset.tab}-tab`).classList.remove('hidden');
+                if (btn.dataset.tab === 'map') {
+                    map.invalidateSize();
+                    updateMap();
+                }
+            });
+        });
+
+        // Search Jobs
+        function searchJobs() {
+            const search = document.getElementById('job-search').value.toLowerCase();
+            const jobResults = document.getElementById('job-results');
+            jobResults.innerHTML = '';
+            const filteredJobs = jobs.filter(job => 
+                job.title.toLowerCase().includes(search) || 
+                job.location.toLowerCase().includes(search) || 
+                search === ''
+            );
+            filteredJobs.forEach(job => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <div class="job-title">${job.title}</div>
+                    <div class="job-details">
+                        <span>📍 ${job.location} (${job.distance})</span>
+                        <span class="job-salary">${job.salary}</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #666; margin: 0.5rem 0;">${job.desc}</p>
+                    <button class="btn-apply" onclick="applyJob('${job.title}')">Postuler</button>
+                `;
+                jobResults.appendChild(item);
+            });
+        }
+
+        // Simulate Job Application
+        function applyJob(jobTitle) {
+            alert(`Candidature envoyée pour "${jobTitle}" ! Vous serez contacté bientôt.`);
+        }
+
+        // Search Products
+        function searchProducts() {
+            const search = document.getElementById('product-search').value.toLowerCase();
+            const productResults = document.getElementById('product-results');
+            productResults.innerHTML = '';
+            const filteredProducts = products.filter(product => 
+                product.title.toLowerCase().includes(search) || 
+                product.location.toLowerCase().includes(search) || 
+                search === ''
+            );
+            filteredProducts.forEach(product => {
+                const item = document.createElement('div');
+                item.className = 'result-item';
+                item.innerHTML = `
+                    <div class="job-title">${product.title}</div>
+                    <div class="job-details">
+                        <span>📍 ${product.location} (${product.distance})</span>
+                        <span class="job-salary">${product.price}</span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #666; margin: 0.5rem 0;">${product.desc}</p>
+                    <button class="btn-apply" onclick="buyProduct('${product.title}')">Acheter</button>
+                `;
+                productResults.appendChild(item);
+            });
+        }
+
+        // Simulate Product Purchase
+        function buyProduct(productTitle) {
+            alert(`Commande passée pour "${productTitle}" ! Détails envoyés via SMS.`);
+        }
+
+        // Update Map
+        function updateMap() {
+            const filter = document.getElementById('map-filter').value;
+            const location = document.getElementById('map-location').value.toLowerCase();
+            const radius = parseInt(document.getElementById('map-radius').value) || 10;
+            const mapResults = document.getElementById('map-results');
+            mapResults.innerHTML = '';
+
+            // Clear existing layers
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker || layer instanceof L.Circle) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Set map center
+            const cityCoords = {
+                'douala': [4.05, 9.71],
+                'yaoundé': [3.85, 11.51],
+                'buea': [4.15, 9.24],
+                'bamenda': [5.96, 10.15],
+                'kribi': [2.94, 9.91],
+                'garoua': [9.30, 13.39],
+                'maroua': [10.59, 14.32],
+                'bafoussam': [5.47, 10.42],
+                'limbe': [4.02, 9.21]
+            };
+            const center = cityCoords[location] || [user.lat, user.lon];
+            map.setView(center, location ? 12 : 10);
+
+            // Add user marker (blue)
+            L.marker([user.lat, user.lon], {
+                icon: L.divIcon({
+                    className: 'user-marker',
+                    html: '<div style="background: #2196F3; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>',
+                    iconSize: [20, 20]
+                })
+            }).addTo(map).bindPopup(`<b>${user.name}</b><br>Vous êtes ici : ${user.location}`);
+
+            // Add radius circle
+            L.circle(center, { 
+                radius: radius * 1000, 
+                color: '#4CAF50', 
+                fillOpacity: 0.1 
+            }).addTo(map);
+
+            // Filter and add markers
+            if (filter === 'jobs' || filter === 'all') {
+                jobs.forEach(job => {
+                    L.marker([job.lat, job.lon], {
+                        icon: L.divIcon({
+                            className: 'job-marker',
+                            html: '<div style="background: #4CAF50; width: 15px; height: 15px; border-radius: 50%; border: 2px solid white;"></div>',
+                            iconSize: [15, 15]
+                        })
+                    }).addTo(map).bindPopup(`
+                        <b>${job.title}</b><br>
+                        ${job.desc}<br>
+                        📍 ${job.location} (${job.distance})<br>
+                        💰 ${job.salary}
+                    `);
+                    if (filter === 'all' || filter === 'jobs') {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <div class="job-title">${job.title}</div>
+                            <p style="font-size: 0.8rem; color: #666;">${job.desc}</p>
+                            <div class="job-details">
+                                <span>📍 ${job.location} (${job.distance})</span>
+                                <span class="job-salary">${job.salary}</span>
+                            </div>
+                        `;
+                        mapResults.appendChild(item);
+                    }
+                });
+            }
+
+            if (filter === 'products' || filter === 'all') {
+                products.forEach(product => {
+                    L.marker([product.lat, product.lon], {
+                        icon: L.divIcon({
+                            className: 'product-marker',
+                            html: '<div style="background: #FF9800; width: 15px; height: 15px; border-radius: 50%; border: 2px solid white;"></div>',
+                            iconSize: [15, 15]
+                        })
+                    }).addTo(map).bindPopup(`
+                        <b>${product.title}</b><br>
+                        ${product.desc}<br>
+                        📍 ${product.location} (${product.distance})<br>
+                        💰 ${product.price}
+                    `);
+                    if (filter === 'all' || filter === 'products') {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.innerHTML = `
+                            <div class="job-title">${product.title}</div>
+                            <p style="font-size: 0.8rem; color: #666;">${product.desc}</p>
+                            <div class="job-details">
+                                <span>📍 ${product.location} (${product.distance})</span>
+                                <span class="job-salary">${product.price}</span>
+                            </div>
+                        `;
+                        mapResults.appendChild(item);
+                    }
+                });
+            }
+        }
+
+        // Update Profile
+        function updateProfile() {
+            const name = document.getElementById('profile-name').value;
+            const location = document.getElementById('profile-location').value;
+            const gps = document.getElementById('profile-gps').value;
+            if (name && location) {
+                user.name = name;
+                user.location = location;
+                if (gps) {
+                    const [lat, lon] = gps.split(',').map(coord => parseFloat(coord.trim()));
+                    if (lat && lon) {
+                        user.lat = lat;
+                        user.lon = lon;
+                    }
+                }
+                alert(`Profil mis à jour : ${name}, ${location}${gps ? ' (GPS: ' + gps + ')' : ''}.`);
+            } else {
+                alert('Veuillez remplir les champs obligatoires.');
+            }
+        }
+
+        // Search Trainings
+        function searchTrainings() {
+            const search = document.getElementById('training-search').value.toLowerCase();
+            const trainingModules = document.getElementById('training-modules');
+            trainingModules.innerHTML = '';
+            const trainings = [
+                { title: 'Techniques de Semis', icon: '🌱', progress: 100, status: 'Terminé ✓', color: '#4CAF50' },
+                { title: 'Transformation Manioc', icon: '🧪', progress: 65, status: 'En cours - 65%', color: '#FF9800' },
+                { title: 'Irrigation Moderne', icon: '💧', progress: 20, status: 'En cours - 20%', color: '#FF9800' },
+                { title: 'Vente Agricole', icon: '🛒', progress: 0, status: 'Non commencé', color: '#666' }
+            ].filter(t => t.title.toLowerCase().includes(search) || search === '');
+            trainings.forEach(t => {
+                const module = document.createElement('div');
+                module.className = 'module-card';
+                module.innerHTML = `
+                    <div class="module-icon">${t.icon}</div>
+                    <h5>${t.title}</h5>
+                    <div class="progress-bar"><div class="progress-fill" style="width: ${t.progress}%;"></div></div>
+                    <p style="font-size: 0.8rem; color: ${t.color};">${t.status}</p>
+                `;
+                trainingModules.appendChild(module);
+            });
+        }
+
+        // Add Product
+        function addProduct() {
+            const name = document.getElementById('product-name').value;
+            const price = document.getElementById('product-price').value;
+            if (name && price) {
+                alert(`Produit "${name}" ajouté au marché pour ${price} FCFA !`);
+            } else {
+                alert('Veuillez remplir tous les champs.');
+            }
+        }
+
+        // Simulate Payment
+        function simulatePayment() {
+            const amount = document.getElementById('payment-amount').value;
+            const type = document.getElementById('payment-type').value;
+            const phone = document.getElementById('payment-phone').value;
+            if (amount && phone) {
+                alert(`${type === 'send' ? 'Paiement' : 'Réception'} de ${amount} FCFA ${type === 'send' ? 'envoyé' : 'reçu'} via Mobile Money (${phone}).`);
+            } else {
+                alert('Veuillez remplir tous les champs.');
+            }
+        }
+
+        // Post Community Message
+        function postCommunityMessage() {
+            const message = document.getElementById('community-message').value;
+            if (message) {
+                const communityList = document.getElementById('community-list');
+                const post = document.createElement('div');
+                post.className = 'community-post';
+                post.innerHTML = `<p>${message}</p><small>Publié le ${new Date().toLocaleString()}</small>`;
+                communityList.prepend(post);
+                document.getElementById('community-message').value = '';
+                alert('Message publié dans la communauté !');
+            } else {
+                alert('Veuillez entrer un message.');
+            }
+        }
+
+        // Initialize Map
+        var map = L.map('map').setView([user.lat, user.lon], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Load Initial Data
+        searchJobs();
+        searchTrainings();
+        searchProducts();
+        updateMap();
+    </script>
+</body>
+</html>
